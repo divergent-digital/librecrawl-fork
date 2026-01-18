@@ -107,6 +107,15 @@
             transform: none;
         }
 
+        .btn-guest {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            margin-top: 12px;
+        }
+
+        .btn-guest:hover {
+            box-shadow: 0 8px 16px rgba(107, 114, 128, 0.3);
+        }
+
         .divider {
             text-align: center;
             margin: 24px 0;
@@ -179,6 +188,8 @@
             <button type="submit" class="btn" id="loginBtn">Login</button>
         </form>
 
+        <button class="btn btn-guest" id="guestBtn">Continue as Guest (3 crawls/24h)</button>
+
         <div class="register-link">
             Don't have an account? <a href="/register" id="registerLink">Register here</a>
         </div>
@@ -233,6 +244,40 @@
                 showAlert('An error occurred. Please try again.', 'error');
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Login';
+            }
+        });
+
+        // Guest login
+        const guestBtn = document.getElementById('guestBtn');
+        guestBtn.addEventListener('click', async () => {
+            hideAlert();
+            guestBtn.disabled = true;
+            guestBtn.textContent = 'Entering as guest...';
+
+            try {
+                const response = await fetch('/api/guest-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('Entering as guest...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 500);
+                } else {
+                    showAlert(data.message || 'Failed to enter as guest', 'error');
+                    guestBtn.disabled = false;
+                    guestBtn.textContent = 'Continue as Guest (3 crawls/24h)';
+                }
+            } catch (error) {
+                showAlert('An error occurred. Please try again.', 'error');
+                guestBtn.disabled = false;
+                guestBtn.textContent = 'Continue as Guest (3 crawls/24h)';
             }
         });
 
